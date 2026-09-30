@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Prediction System | Machine Learning Dashboard</title>
+    <!-- Google Fonts & Font Awesome Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Header Navigation -->
+        <header class="app-header">
+            <div class="brand-section">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <div>
+                    <h1>Diabetes Risk Predictor</h1>
+                    <p class="subtitle">Production Machine Learning Diagnostic Dashboard</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="status-badge" id="systemStatusBadge">
+                    <span class="status-dot healthy"></span>
+                    <span id="statusText">Checking Backend...</span>
+                </div>
+                <button type="button" class="btn-sample" id="fillSampleBtn" title="Fill form with sample clinical values">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Load Sample Data
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace: Form & Result Grid -->
+        <main class="dashboard-grid">
+            <!-- Form Section -->
+            <section class="card form-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-sliders"></i> Clinical Feature Inputs</h2>
+                    <span class="badge info">8 Model Features</span>
+                </div>
+                
+                <div id="formErrorAlert" class="alert alert-danger hidden">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="formErrorMessage">Please correct the highlighted fields before submitting.</span>
+                </div>
+
+                <form id="predictionForm" novalidate>
+                    <div class="inputs-grid">
+                        <!-- 1. Pregnancies -->
+                        <div class="form-group">
+                            <label for="n_pregnant">
+                                <span>1. Pregnancies</span>
+                                <i class="fa-solid fa-circle-info" title="Number of times pregnant"></i>
+                            </label>
+                            <input type="number" id="n_pregnant" name="n_pregnant" min="0" step="1" placeholder="e.g. 2" required>
+                            <span class="error-text" id="err-n_pregnant"></span>
+                        </div>
+
+                        <!-- 2. Glucose -->
+                        <div class="form-group">
+                            <label for="glucose">
+                                <span>2. Glucose</span>
+                                <i class="fa-solid fa-circle-info" title="Plasma glucose concentration (2 hours in an oral glucose tolerance test)"></i>
+                            </label>
+                            <div class="input-with-unit">
+                                <input type="number" id="glucose" name="glucose" min="0" step="any" placeholder="e.g. 138" required>
+                                <span class="unit">mg/dL</span>
+                            </div>
+                            <span class="error-text" id="err-glucose"></span>
+                        </div>
+
+                        <!-- 3. Blood Pressure -->
+                        <div class="form-group">
+                            <label for="tension">
+                                <span>3. Blood Pressure</span>
+                                <i class="fa-solid fa-circle-info" title="Diastolic blood pressure (mm Hg)"></i>
+                            </label>
+                            <div class="input-with-unit">
+                                <input type="number" id="tension" name="tension" min="0" step="any" placeholder="e.g. 72" required>
+                                <span class="unit">mmHg</span>
+                            </div>
+                            <span class="error-text" id="err-tension"></span>
+                        </div>
+
+                        <!-- 4. Skin Thickness -->
+                        <div class="form-group">
+                            <label for="thickness">
+                                <span>4. Skin Thickness</span>
+                                <i class="fa-solid fa-circle-info" title="Triceps skin fold thickness (mm)"></i>
+                            </label>
+                            <div class="input-with-unit">
+                                <input type="number" id="thickness" name="thickness" min="0" step="any" placeholder="e.g. 35" required>
+                                <span class="unit">mm</span>
+                            </div>
+                            <span class="error-text" id="err-thickness"></span>
+                        </div>
+
+                        <!-- 5. Insulin -->
+                        <div class="form-group">
+                            <label for="insulin">
+                                <span>5. Insulin</span>
+                                <i class="fa-solid fa-circle-info" title="2-Hour serum insulin (mu U/ml)"></i>
+                            </label>
+                            <div class="input-with-unit">
+                                <input type="number" id="insulin" name="insulin" min="0" step="any" placeholder="e.g. 0 or 168" required>
+                                <span class="unit">µU/mL</span>
+                            </div>
+                            <span class="error-text" id="err-insulin"></span>
+                        </div>
+
+                        <!-- 6. BMI -->
+                        <div class="form-group">
+                            <label for="bmi">
+                                <span>6. BMI</span>
+                                <i class="fa-solid fa-circle-info" title="Body mass index (weight in kg/(height in m)^2)"></i>
+                            </label>
+                            <div class="input-with-unit">
+                                <input type="number" id="bmi" name="bmi" min="0" step="any" placeholder="e.g. 33.6" required>
+                                <span class="unit">kg/m²</span>
+                            </div>
+                            <span class="error-text" id="err-bmi"></span>
+                        </div>
+
+                        <!-- 7. Pedigree -->
+                        <div class="form-group">
+                            <label for="pedigree">
+                                <span>7. Diabetes Pedigree</span>
+                                <i class="fa-solid fa-circle-info" title="Diabetes pedigree function (genetic score based on family history)"></i>
+                            </label>
+                            <input type="number" id="pedigree" name="pedigree" min="0" step="any" placeholder="e.g. 0.627" required>
+                            <span class="error-text" id="err-pedigree"></span>
+                        </div>
+
+                        <!-- 8. Age -->
+                        <div class="form-group">
+                            <label for="age">
+                                <span>8. Age</span>
+                                <i class="fa-solid fa-circle-info" title="Age in years"></i>
+                            </label>
+                            <div class="input-with-unit">
+                                <input type="number" id="age" name="age" min="0" step="1" placeholder="e.g. 45" required>
+                                <span class="unit">years</span>
+                            </div>
+                            <span class="error-text" id="err-age"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="resetBtn">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Fields
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="predictBtn">
+                            <span class="btn-text"><i class="fa-solid fa-brain"></i> Predict Diabetes Risk</span>
+                            <span class="spinner hidden"></span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Result Section -->
+            <section class="card result-card">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-chart-pie"></i> Model Prediction Result</h2>
+                    <span class="badge neutral" id="resultStatusTag">Awaiting Input</span>
+                </div>
+
+                <!-- Empty State -->
+                <div id="resultPlaceholder" class="result-placeholder">
+                    <div class="placeholder-icon">
+                        <i class="fa-solid fa-laptop-medical"></i>
+                    </div>
+                    <h3>No Prediction Generated Yet</h3>
+                    <p>Enter the 8 clinical features on the left and click "Predict Diabetes Risk" to evaluate the model response.</p>
+                </div>
+
+                <!-- Prediction Content (Hidden by default) -->
+                <div id="resultContent" class="result-content hidden">
+                    <!-- Outcome Hero Box -->
+                    <div class="outcome-box" id="outcomeBox">
+                        <div class="outcome-icon" id="outcomeIcon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div class="outcome-details">
+                            <span class="outcome-label">ML Model Classification</span>
+                            <h3 class="outcome-title" id="outcomeTitle">Low Risk</h3>
+                            <p class="outcome-desc" id="outcomeDesc">The model evaluated this feature profile as low risk for diabetes.</p>
+                        </div>
+                    </div>
+
+                    <!-- Probability Gauge & Breakdown -->
+                    <div class="metrics-container">
+                        <div class="metric-header">
+                            <span>Diabetes Risk Probability</span>
+                            <span class="metric-value" id="probabilityValue">0.0%</span>
+                        </div>
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+                        </div>
+
+                        <div class="probability-split">
+                            <div class="split-item negative">
+                                <span class="split-label"><i class="fa-solid fa-circle-check"></i> Low Risk (No Diabetes)</span>
+                                <span class="split-val" id="probNegVal">0.0%</span>
+                            </div>
+                            <div class="split-item positive">
+                                <span class="split-label"><i class="fa-solid fa-triangle-exclamation"></i> High Risk (Diabetes)</span>
+                                <span class="split-val" id="probPosVal">0.0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Feature Summary Vector -->
+                    <div class="feature-summary">
+                        <h4>Evaluated Feature Vector</h4>
+                        <div class="summary-chips" id="summaryChips">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Mandatory Medical Disclaimer -->
+                    <div class="disclaimer-card">
+                        <i class="fa-solid fa-user-doctor"></i>
+                        <div>
+                            <strong>Disclaimer:</strong>
+                            <p id="disclaimerText">Model prediction only — not a medical diagnosis.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Prediction History Section -->
+        <section class="card history-card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-clock-rotate-left"></i> Session Prediction History</h2>
+                <div class="history-actions">
+                    <span class="history-count" id="historyCount">0 predictions recorded</span>
+                    <button type="button" class="btn-text-action" id="clearHistoryBtn" title="Clear history list">
+                        <i class="fa-solid fa-trash-can"></i> Clear History
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Time</th>
+                            <th>Features (Glucose / BMI / Age)</th>
+                            <th>Predicted Class</th>
+                            <th>Probability</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr class="empty-row">
+                            <td colspan="6">No predictions made during this session yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Model Architecture & How It Works -->
+        <section class="card workflow-card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-diagram-project"></i> How the Model Works</h2>
+                <span class="badge info">ML Pipeline Architecture</span>
+            </div>
+
+            <div class="pipeline-flow">
+                <!-- Step 1 -->
+                <div class="flow-step">
+                    <div class="step-num">1</div>
+                    <div class="step-content">
+                        <div class="step-icon"><i class="fa-solid fa-database"></i></div>
+                        <h3>Dataset Input</h3>
+                        <p>Accepts 8 standardized clinical metrics from patient evaluation.</p>
+                    </div>
+                </div>
+                <div class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+                <!-- Step 2 -->
+                <div class="flow-step">
+                    <div class="step-num">2</div>
+                    <div class="step-content">
+                        <div class="step-icon"><i class="fa-solid fa-filter"></i></div>
+                        <h3>Preprocessing</h3>
+                        <p>Normalizes feature distribution using <code>StandardScaler</code> transformation.</p>
+                    </div>
+                </div>
+                <div class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+                <!-- Step 3 -->
+                <div class="flow-step">
+                    <div class="step-num">3</div>
+                    <div class="step-content">
+                        <div class="step-icon"><i class="fa-solid fa-microchip"></i></div>
+                        <h3>ML Model</h3>
+                        <p>Evaluates feature weights via scikit-learn <code>LogisticRegression</code> model.</p>
+                    </div>
+                </div>
+                <div class="flow-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+                <!-- Step 4 -->
+                <div class="flow-step">
+                    <div class="step-num">4</div>
+                    <div class="step-content">
+                        <div class="step-icon"><i class="fa-solid fa-square-poll-vertical"></i></div>
+                        <h3>Prediction & Risk</h3>
+                        <p>Generates binary class output (0/1) along with confidence probability score.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Dataset Section -->
+        <section class="card dataset-card">
+            <div class="card-header">
+                <h2><i class="fa-solid fa-circle-info"></i> About the Dataset</h2>
+                <span class="badge neutral">Pima Indians Diabetes Dataset</span>
+            </div>
+
+            <div class="dataset-info-grid">
+                <div class="info-box">
+                    <div class="info-val">768</div>
+                    <div class="info-lbl">Total Records</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-val">8</div>
+                    <div class="info-lbl">Input Features</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-val">Binary</div>
+                    <div class="info-lbl">Target: diabete (0 / 1)</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-val">Scikit-Learn</div>
+                    <div class="info-lbl">Pipeline Architecture</div>
+                </div>
+            </div>
+
+            <div class="feature-table-wrapper">
+                <h4>Dataset Feature Specifications</h4>
+                <table class="spec-table">
+                    <thead>
+                        <tr>
+                            <th>Model Feature Name</th>
+                            <th>User Label</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>n_pregnant</code></td><td>Pregnancies</td><td>Number of times pregnant</td></tr>
+                        <tr><td><code>glucose</code></td><td>Glucose</td><td>Plasma glucose concentration at 2 hours in an oral glucose tolerance test</td></tr>
+                        <tr><td><code>tension</code></td><td>Blood Pressure</td><td>Diastolic blood pressure (mm Hg)</td></tr>
+                        <tr><td><code>thickness</code></td><td>Skin Thickness</td><td>Triceps skin fold thickness (mm)</td></tr>
+                        <tr><td><code>insulin</code></td><td>Insulin</td><td>2-Hour serum insulin (mu U/ml)</td></tr>
+                        <tr><td><code>bmi</code></td><td>BMI</td><td>Body mass index (weight in kg / (height in m)²)</td></tr>
+                        <tr><td><code>pedigree</code></td><td>Diabetes Pedigree Function</td><td>Diabetes pedigree function (genetic score)</td></tr>
+                        <tr><td><code>age</code></td><td>Age</td><td>Age in years</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2026 Diabetes Prediction ML Application | Built with FastAPI & scikit-learn | Model prediction only — not a medical diagnosis.</p>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
